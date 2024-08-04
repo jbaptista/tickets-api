@@ -13,3 +13,6 @@ API responsible for managing support tickets
 After install requirements, run
  - `just install`
  - `just dev`
+
+ or, if you want to use docker
+ - `just run-docker`
