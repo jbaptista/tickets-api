@@ -21,6 +21,13 @@ lint *args:
 test *args:
   {{ prun }} pytest {{ args }}
 
+# Run static type checker
+typecheck *args:
+	{{ prun }} mypy {{ args }} {{ code_folders }}
+
+# Run all static checks
+check: fmt lint typecheck test
+
 # build docker image
 build:
   docker build -t {{ module }} .
