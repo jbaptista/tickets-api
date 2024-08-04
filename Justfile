@@ -1,3 +1,4 @@
+prun := "poetry run"
 module := "tickets_api"
 
 # Install dependencies
@@ -6,7 +7,11 @@ install:
 
 # Run app in development mode
 dev:
-  poetry run uvicorn  {{ module }}.main:app --reload
+  {{ prun }} uvicorn  {{ module }}.main:app --reload
+
+# Run tests
+test *args:
+  {{ prun }} pytest {{ args }}
 
 # build docker image
 build:
