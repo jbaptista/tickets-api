@@ -1,5 +1,6 @@
 prun := "poetry run"
 module := "tickets_api"
+code_folders := module + " tests"
 
 # Install dependencies
 install:
@@ -8,6 +9,13 @@ install:
 # Run app in development mode
 dev:
   {{ prun }} uvicorn  {{ module }}.main:app --reload
+
+# Format code
+fmt *args:
+  {{prun}} ruff format {{ args }} {{ code_folders }}
+
+lint *args:
+  {{ prun }} ruff check {{ args }} {{ code_folders }}
 
 # Run tests
 test *args:
