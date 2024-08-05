@@ -14,6 +14,9 @@ dev:
 fmt *args:
   {{prun}} ruff format {{ args }} {{ code_folders }}
 
+# Check if code is in the standard format
+fmt-ci: (fmt "--diff")
+
 lint *args:
   {{ prun }} ruff check {{ args }} {{ code_folders }}
 
