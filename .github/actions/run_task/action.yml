@@ -1,0 +1,29 @@
+name: Run task
+description: Run a just task with python and poetry setup
+inputs:
+  task:
+    required: true
+    description: Task to be run
+  args:
+    required: false
+    description: Task extra argument
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v3
+      with:
+        python-version-file: 'pyproject.toml'
+    - uses: snok/install-poetry@v1
+      with:
+        version: '1.7.1'
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+        installer-parallel: true
+    - uses: actions/cache@v2
+      with:
+        path: ./.venv
+        key: poetry-lock-${{ hashFiles('./poetry.lock') }}
+    - uses: extractions/setup-just@v1
+    - run: just ${{ inputs.task }} ${{ inputs.args }}
+      shell: bash
