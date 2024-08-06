@@ -12,3 +12,10 @@ async def create_ticket(
     ticket: TicketCreate, ticket_service: TicketService = load_state(TicketService)
 ):
     return await ticket_service.create_ticket(ticket)
+
+
+@router.get("/{ticket_id}")
+async def get_ticket(
+    ticket_id: int, ticket_service: TicketService = load_state(TicketService)
+):
+    return await ticket_service.get_ticket(ticket_id)

@@ -10,3 +10,6 @@ class TicketService:
 
     async def create_ticket(self, ticket: TicketCreate):
         return await self.ticket_repository.add_ticket(ticket)
+
+    async def get_ticket(self, ticket_id: int):
+        return await self.ticket_repository.get_ticket(ticket_id)

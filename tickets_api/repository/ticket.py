@@ -15,3 +15,7 @@ class TicketRepository(SqlAlchemyRepositoryMixin):
             session.add(ticket)
             await session.commit()
             return ticket
+
+    async def get_ticket(self, ticket_id: int) -> Ticket:
+        async with self.session() as session:
+            return await session.get(Ticket, ticket_id)
