@@ -38,3 +38,11 @@ build:
 # run docker container
 run-docker: build
   docker run -p 8000:8000 {{ module }}
+
+# Generates migration script from difference between models and database
+gen-migration:
+	{{ prun }} alembic revision --autogenerate
+
+# Apply pending migrations to database
+migrate:
+	{{ prun }} alembic upgrade head
