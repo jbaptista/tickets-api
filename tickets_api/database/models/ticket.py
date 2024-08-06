@@ -1,15 +1,7 @@
-from enum import Enum
-
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
-
-
-class Severity(Enum):
-    ISSUE_HIGH = 1
-    HIGH = 2
-    MEDIUM = 3
-    LOW = 4
+from tickets_api.schemas.ticket import Severity
 
 
 class Ticket(Base):

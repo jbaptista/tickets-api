@@ -39,6 +39,7 @@ build:
 run-docker:
   docker-compose up --build -d
   docker-compose exec app alembic upgrade head
+  docker-compose logs -f app
 
 # Generates migration script from difference between models and database
 gen-migration:
