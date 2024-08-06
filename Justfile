@@ -36,8 +36,9 @@ build:
   docker build -t {{ module }} .
 
 # run docker container
-run-docker: build
-  docker run -p 8000:8000 {{ module }}
+run-docker:
+  docker-compose up --build -d
+  docker-compose exec app alembic upgrade head
 
 # Generates migration script from difference between models and database
 gen-migration:
