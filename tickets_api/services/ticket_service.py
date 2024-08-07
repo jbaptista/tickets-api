@@ -23,11 +23,15 @@ class TicketService(SqlAlchemyRepositoryMixin):
 
     async def get_ticket(self, ticket_id: int) -> Ticket:
         async with self.session() as session:
-            return await session.get(Ticket, ticket_id)
+            ticket = await session.get(Ticket, ticket_id)
+            if not ticket:
+                raise HTTPException(status_code=404, detail="Ticket not found")
+            return ticket
 
     async def get_all_tickets(self) -> list[Ticket]:
         async with self.session() as session:
-            result = await session.execute(select(Ticket))
+            stmt = select(Ticket)
+            result = await session.execute(stmt)
             return result.scalars().all()
 
     async def delete_ticket(self, ticket_id: int) -> None:
