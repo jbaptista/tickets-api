@@ -6,7 +6,7 @@ from .routers.tickets import router as tickets_router
 
 from .database.repository import make_db_engine
 from .utils.fastapi import register_state
-from .services.ticket import TicketService
+from .services.ticket_service import TicketService
 
 
 def create_app(config: Config) -> FastAPI:

@@ -6,8 +6,11 @@ code_folders := module + " tests"
 install:
 	poetry install
 
+docker-db:
+  docker-compose up -d postgres
+
 # Run app in development mode
-dev:
+dev: docker-db migrate
   {{ prun }} uvicorn  {{ module }}.main:app --reload
 
 # Format code
