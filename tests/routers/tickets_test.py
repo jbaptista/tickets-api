@@ -1,10 +1,8 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
 from tickets_api.database.models import Ticket
 from tickets_api.database.models.ticket import Severity
 from tickets_api.services.ticket_service import TicketService
-from tickets_api.utils.fastapi import load_state
 
 
 @pytest.fixture

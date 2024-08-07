@@ -14,11 +14,11 @@ class TicketService(SqlAlchemyRepositoryMixin):
         super().__init__(session_factory)
 
     async def create_ticket(self, ticket: TicketCreate) -> Ticket:
-        ticket = Ticket(**ticket.model_dump())
+        new_ticket = Ticket(**ticket.model_dump())
         async with self.session() as session:
-            session.add(ticket)
+            session.add(new_ticket)
             await session.commit()
-            return ticket
+            return new_ticket
 
     async def get_ticket(self, ticket_id: int) -> Ticket:
         async with self.session() as session:

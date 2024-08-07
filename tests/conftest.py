@@ -1,4 +1,3 @@
-from unittest.mock import patch
 import pytest
 from fastapi.testclient import TestClient
 import pytest_asyncio

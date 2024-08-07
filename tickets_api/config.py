@@ -22,4 +22,10 @@ class Config(BaseSettings):
     log_level: str = "INFO"
     is_local: bool = False
     version: str = "unknown"
-    database: Database
+    database: Database = Database(
+        user="postgres",
+        password=SecretStr("postgres"),
+        host="localhost",
+        port=5432,
+        db_name="postgres",
+    )
