@@ -1,12 +1,11 @@
 """Module to provide slqalchemy adapters for the repository pattern."""
 
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
 
 
-def make_session_factory(url: str, *args, **kwargs) -> async_sessionmaker:
-    """Async session factory."""
-    db_engine = create_async_engine(url, *args, **kwargs)
-    return async_sessionmaker(bind=db_engine, expire_on_commit=False)
+def make_db_engine(url: str, *args, **kwargs) -> AsyncEngine:
+    """Async engine factory."""
+    return create_async_engine(url, *args, **kwargs)
 
 
 class SqlAlchemyRepositoryMixin:
@@ -21,6 +20,7 @@ class SqlAlchemyRepositoryMixin:
 
     """
 
-    def __init__(self, session_factory: async_sessionmaker):
+    def __init__(self, db_engine: AsyncEngine):
+        self._engine = db_engine
         # Create a session factory
-        self.session = session_factory  # async_sessionmaker(bind=self._engine, expire_on_commit=False)
+        self.session = async_sessionmaker(bind=self._engine, expire_on_commit=False)

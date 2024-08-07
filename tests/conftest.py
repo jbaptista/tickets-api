@@ -12,6 +12,8 @@ from tickets_api.database.models import Base
 from tickets_api.services.ticket_service import TicketService
 from tickets_api.utils.fastapi import register_state
 
+DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+
 
 @pytest_asyncio.fixture
 async def async_sqlite_engine():
@@ -24,23 +26,11 @@ async def async_sqlite_engine():
 
 
 @pytest.fixture
-def app_client(session_factory):
-    ticket_service = TicketService(session_factory=session_factory)
+async def app_client(async_sqlite_engine):
+    ticket_service = TicketService(db_engine=async_sqlite_engine)
     app = create_app(config.Config())
     register_state(app, ticket_service)
     return TestClient(app)
-
-
-@pytest.fixture
-def session_factory(async_sqlite_engine):
-    return async_sessionmaker(async_sqlite_engine, expire_on_commit=False)
-
-
-@pytest_asyncio.fixture
-async def session(async_sqlite_engine):
-    async_session = async_sessionmaker(async_sqlite_engine, expire_on_commit=False)
-    async with async_session() as session:
-        yield session
 
 
 @pytest.fixture

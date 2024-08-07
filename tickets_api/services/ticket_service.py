@@ -3,6 +3,7 @@ from datetime import datetime
 from fastapi import HTTPException
 
 from sqlalchemy.future import select
+from sqlalchemy.ext.asyncio import AsyncEngine
 
 from tickets_api.database.repository import SqlAlchemyRepositoryMixin
 from tickets_api.schemas.ticket import TicketCreate
@@ -10,8 +11,8 @@ from tickets_api.database.models.ticket import Ticket
 
 
 class TicketService(SqlAlchemyRepositoryMixin):
-    def __init__(self, session_factory):
-        super().__init__(session_factory)
+    def __init__(self, db_engine: AsyncEngine):
+        super().__init__(db_engine)
 
     async def create_ticket(self, ticket: TicketCreate) -> Ticket:
         new_ticket = Ticket(**ticket.model_dump())
