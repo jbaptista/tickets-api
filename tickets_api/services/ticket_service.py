@@ -48,7 +48,8 @@ class TicketService(SqlAlchemyRepositoryMixin):
             if not ticket_db:
                 raise HTTPException(status_code=404, detail="Ticket not found")
             ticket_db.title = ticket.title
-            ticket_db.description = ticket.description
+            if ticket.description:
+                ticket_db.description = ticket.description
             ticket_db.severity = ticket.severity
             ticket_db.updated_at = datetime.now()
             await session.commit()
