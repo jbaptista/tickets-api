@@ -32,7 +32,7 @@ class TicketService(SqlAlchemyRepositoryMixin):
         async with self.session() as session:
             stmt = select(Ticket)
             result = await session.execute(stmt)
-            return result.scalars().all()
+            return list(result.scalars().all())
 
     async def delete_ticket(self, ticket_id: int) -> None:
         async with self.session() as session:
@@ -44,7 +44,7 @@ class TicketService(SqlAlchemyRepositoryMixin):
 
     async def update_ticket(self, ticket_id: int, ticket: TicketCreate) -> Ticket:
         async with self.session() as session:
-            ticket_db = await session.get(Ticket, ticket_id)
+            ticket_db: Ticket | None = await session.get(Ticket, ticket_id)
             if not ticket_db:
                 raise HTTPException(status_code=404, detail="Ticket not found")
             ticket_db.title = ticket.title

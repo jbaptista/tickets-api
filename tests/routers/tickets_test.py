@@ -34,7 +34,7 @@ async def create_ticket_2_in_db(app_client):
 
 
 @pytest.mark.asyncio
-async def test_create_ticket(app_client: TestClient):
+async def test_create_ticket(app_client):
     app_client_instance = await app_client
     response = app_client_instance.post(
         "/ticket",
@@ -48,7 +48,7 @@ async def test_create_ticket(app_client: TestClient):
 
 
 @pytest.mark.asyncio
-async def test_get_ticket(app_client: TestClient):
+async def test_get_ticket(app_client):
     app_client_instance = await app_client
     ticket = await create_ticket_1_in_db(app_client_instance)
     response = app_client_instance.get(f"/ticket/{ticket.id}")
@@ -60,7 +60,7 @@ async def test_get_ticket(app_client: TestClient):
 
 
 @pytest.mark.asyncio
-async def test_get_all_tickets(app_client: TestClient):
+async def test_get_all_tickets(app_client):
     app_client_instance = await app_client
     ticket1 = await create_ticket_1_in_db(app_client_instance)
     ticket2 = await create_ticket_2_in_db(app_client_instance)
@@ -77,7 +77,7 @@ async def test_get_all_tickets(app_client: TestClient):
 
 
 @pytest.mark.asyncio
-async def test_update_ticket(app_client: TestClient):
+async def test_update_ticket(app_client):
     app_client_instance = await app_client
     ticket = await create_ticket_1_in_db(app_client_instance)
 
@@ -93,7 +93,7 @@ async def test_update_ticket(app_client: TestClient):
 
 
 @pytest.mark.asyncio
-async def test_delete_ticket(app_client: TestClient):
+async def test_delete_ticket(app_client):
     app_client_instance = await app_client
     ticket = await create_ticket_1_in_db(app_client_instance)
 
