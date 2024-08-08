@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 import pytest_asyncio
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine
 
 
 from tickets_api import config
