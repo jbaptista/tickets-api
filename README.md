@@ -13,6 +13,7 @@ API responsible for managing support tickets
 This Python project was built using the following technologies
  - [FastAPI](https://fastapi.tiangolo.com/) as web framework
  - [SqlAlchemy](https://www.sqlalchemy.org/) as ORM
+ - [Alembic] as database migration tool
  - [Pydantic](https://docs.pydantic.dev/latest/) as data validator
  - [Pytest](https://pytest.org) as tests framework
  - [Ruff](https://github.com/astral-sh/ruff) as code formatter and linter
