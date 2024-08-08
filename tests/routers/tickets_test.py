@@ -36,7 +36,7 @@ async def create_ticket_2_in_db(app_client):
 async def test_create_ticket(app_client):
     app_client_instance = await app_client
     response = app_client_instance.post(
-        "/ticket",
+        "/tickets",
         json={"title": "Test Ticket", "description": None, "severity": 2},
     )
     assert response.status_code == 200
@@ -50,7 +50,7 @@ async def test_create_ticket(app_client):
 async def test_get_ticket(app_client):
     app_client_instance = await app_client
     ticket = await create_ticket_1_in_db(app_client_instance)
-    response = app_client_instance.get(f"/ticket/{ticket.id}")
+    response = app_client_instance.get(f"/tickets/{ticket.id}")
     assert response.status_code == 200
     data = response.json()
     assert data["title"] == ticket.title
@@ -63,7 +63,7 @@ async def test_get_all_tickets(app_client):
     app_client_instance = await app_client
     ticket1 = await create_ticket_1_in_db(app_client_instance)
     ticket2 = await create_ticket_2_in_db(app_client_instance)
-    response = app_client_instance.get("/ticket")
+    response = app_client_instance.get("/tickets")
     assert response.status_code == 200
     data = response.json()
     assert len(data) == 2
@@ -81,7 +81,7 @@ async def test_update_ticket(app_client):
     ticket = await create_ticket_1_in_db(app_client_instance)
 
     response = app_client_instance.put(
-        f"/ticket/{ticket.id}",
+        f"/tickets/{ticket.id}",
         json={"title": "Updated Test Ticket", "description": None, "severity": 2},
     )
     assert response.status_code == 200
@@ -96,10 +96,10 @@ async def test_delete_ticket(app_client):
     app_client_instance = await app_client
     ticket = await create_ticket_1_in_db(app_client_instance)
 
-    response = app_client_instance.delete(f"/ticket/{ticket.id}")
+    response = app_client_instance.delete(f"/tickets/{ticket.id}")
     assert response.status_code == 200
     data = response.json()
     assert data["message"] == "Ticket deleted"
 
-    response = app_client_instance.get(f"/ticket/{ticket.id}")
+    response = app_client_instance.get(f"/tickets/{ticket.id}")
     assert response.status_code == 404
