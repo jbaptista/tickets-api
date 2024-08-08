@@ -1,0 +1,56 @@
+from datetime import datetime
+
+from fastapi import HTTPException
+
+from sqlalchemy.future import select
+from sqlalchemy.ext.asyncio import AsyncEngine
+
+from tickets_api.database.repository import SqlAlchemyRepositoryMixin
+from tickets_api.schemas.ticket import TicketCreate
+from tickets_api.database.models.ticket import Ticket
+
+
+class TicketService(SqlAlchemyRepositoryMixin):
+    def __init__(self, db_engine: AsyncEngine):
+        super().__init__(db_engine)
+
+    async def create_ticket(self, ticket: TicketCreate) -> Ticket:
+        new_ticket = Ticket(**ticket.model_dump())
+        async with self.session() as session:
+            session.add(new_ticket)
+            await session.commit()
+            return new_ticket
+
+    async def get_ticket(self, ticket_id: int) -> Ticket:
+        async with self.session() as session:
+            ticket = await session.get(Ticket, ticket_id)
+            if not ticket:
+                raise HTTPException(status_code=404, detail="Ticket not found")
+            return ticket
+
+    async def get_all_tickets(self) -> list[Ticket]:
+        async with self.session() as session:
+            stmt = select(Ticket)
+            result = await session.execute(stmt)
+            return list(result.scalars().all())
+
+    async def delete_ticket(self, ticket_id: int) -> None:
+        async with self.session() as session:
+            ticket = await session.get(Ticket, ticket_id)
+            if not ticket:
+                raise HTTPException(status_code=404, detail="Ticket not found")
+            await session.delete(ticket)
+            await session.commit()
+
+    async def update_ticket(self, ticket_id: int, ticket: TicketCreate) -> Ticket:
+        async with self.session() as session:
+            ticket_db: Ticket | None = await session.get(Ticket, ticket_id)
+            if not ticket_db:
+                raise HTTPException(status_code=404, detail="Ticket not found")
+            ticket_db.title = ticket.title
+            if ticket.description:
+                ticket_db.description = ticket.description
+            ticket_db.severity = ticket.severity
+            ticket_db.updated_at = datetime.now()
+            await session.commit()
+            return ticket_db
