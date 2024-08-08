@@ -18,6 +18,6 @@ def create_app(config: Config) -> FastAPI:
     register_state(app, ticket_service)
 
     app.include_router(healthcheck_router, prefix="/healthcheck")
-    app.include_router(tickets_router, prefix="/ticket")
+    app.include_router(tickets_router, prefix="/tickets")
 
     return app
