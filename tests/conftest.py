@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from tickets_api import config
 from tickets_api.app_factory import create_app
 from tickets_api.database.models import Base
+from tickets_api.services.category_service import CategoryService
 from tickets_api.services.ticket_service import TicketService
 from tickets_api.utils.fastapi import register_state
 
@@ -28,8 +29,11 @@ async def async_sqlite_engine():
 @pytest.fixture
 async def app_client(async_sqlite_engine):
     ticket_service = TicketService(db_engine=async_sqlite_engine)
+    category_service = CategoryService(db_engine=async_sqlite_engine)
+
     app = create_app(config.Config())
     register_state(app, ticket_service)
+    register_state(app, category_service)
     return TestClient(app)
 
 

@@ -1,30 +1,42 @@
 from datetime import datetime
 
 from fastapi import HTTPException
+from loguru import logger
 
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from tickets_api.database.repository import SqlAlchemyRepositoryMixin
-from tickets_api.schemas.ticket import TicketCreate
+from tickets_api.schemas.ticket import Severity, TicketCreate
 from tickets_api.database.models.ticket import Ticket
+from tickets_api.database.models.category import Category
 
 
 class TicketService(SqlAlchemyRepositoryMixin):
     def __init__(self, db_engine: AsyncEngine):
         super().__init__(db_engine)
 
-    async def create_ticket(self, ticket: TicketCreate) -> Ticket:
-        new_ticket = Ticket(**ticket.model_dump())
+    async def create_ticket(self, ticket: TicketCreate):
         async with self.session() as session:
+            await self.validate_category_and_subcategory(
+                session, ticket.category_id, ticket.subcategory_id
+            )
+
+            new_ticket = Ticket(**ticket.model_dump())
             session.add(new_ticket)
             await session.commit()
+            if new_ticket.severity == Severity.ISSUE_HIGH:
+                return {
+                    "ticket": new_ticket,
+                    "message": "Por favor, crie um ticket no link: http://example/fast, a equipe de guardian buscará resolver a sua issue.",
+                }
             return new_ticket
 
     async def get_ticket(self, ticket_id: int) -> Ticket:
         async with self.session() as session:
             ticket = await session.get(Ticket, ticket_id)
             if not ticket:
+                logger.error(f"Ticket {ticket_id} not found for retrieval")
                 raise HTTPException(status_code=404, detail="Ticket not found")
             return ticket
 
@@ -38,6 +50,7 @@ class TicketService(SqlAlchemyRepositoryMixin):
         async with self.session() as session:
             ticket = await session.get(Ticket, ticket_id)
             if not ticket:
+                logger.error(f"Ticket {ticket_id} not found for deletion")
                 raise HTTPException(status_code=404, detail="Ticket not found")
             await session.delete(ticket)
             await session.commit()
@@ -46,6 +59,7 @@ class TicketService(SqlAlchemyRepositoryMixin):
         async with self.session() as session:
             ticket_db: Ticket | None = await session.get(Ticket, ticket_id)
             if not ticket_db:
+                logger.error(f"Ticket {ticket_id} not found for update")
                 raise HTTPException(status_code=404, detail="Ticket not found")
             ticket_db.title = ticket.title
             if ticket.description:
@@ -54,3 +68,28 @@ class TicketService(SqlAlchemyRepositoryMixin):
             ticket_db.updated_at = datetime.now()
             await session.commit()
             return ticket_db
+
+    async def validate_category_and_subcategory(
+        self, session, category_id, subcategory_id
+    ):
+        category = await session.get(Category, category_id)
+        if not category:
+            logger.error(f"Error binding category {category_id}. Category not found")
+            raise HTTPException(status_code=400, detail="Non-existent category")
+        subcategory = await session.get(Category, subcategory_id)
+        if not subcategory:
+            logger.error(
+                f"Error binding subcategory {subcategory_id}. Subcategory not found"
+            )
+            raise HTTPException(status_code=400, detail="Non-existent subcategory")
+        if subcategory.parent_id != category_id:
+            (
+                logger.error(
+                    f"Error binding subcategory {subcategory_id} and category {category_id}. The subcategory is not a child of the category"
+                ),
+            )
+            raise HTTPException(
+                status_code=400,
+                detail="The subcategory is not a child of the category",
+            )
+        return category, subcategory
