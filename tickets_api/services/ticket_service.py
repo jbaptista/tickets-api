@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from tickets_api.database.repository import SqlAlchemyRepositoryMixin
 from tickets_api.schemas.ticket import TicketCreate
 from tickets_api.database.models.ticket import Ticket
+from tickets_api.database.models.category import Category
 
 
 class TicketService(SqlAlchemyRepositoryMixin):
@@ -15,8 +16,12 @@ class TicketService(SqlAlchemyRepositoryMixin):
         super().__init__(db_engine)
 
     async def create_ticket(self, ticket: TicketCreate) -> Ticket:
-        new_ticket = Ticket(**ticket.model_dump())
         async with self.session() as session:
+            await self.validate_category_and_subcategory(
+                session, ticket.category_id, ticket.subcategory_id
+            )
+
+            new_ticket = Ticket(**ticket.model_dump())
             session.add(new_ticket)
             await session.commit()
             return new_ticket
@@ -54,3 +59,18 @@ class TicketService(SqlAlchemyRepositoryMixin):
             ticket_db.updated_at = datetime.now()
             await session.commit()
             return ticket_db
+
+    async def validate_category_and_subcategory(
+        self, session, category_id, subcategory_id
+    ):
+        category = await session.get(Category, category_id)
+        if not category:
+            raise HTTPException(status_code=400, detail="Non-existent category")
+        subcategory = await session.get(Category, subcategory_id)
+        if not subcategory:
+            raise HTTPException(status_code=400, detail="Non-existent subcategory")
+        if subcategory.parent_id != category_id:
+            raise HTTPException(
+                status_code=400, detail="The subcategory is not a child of the category"
+            )
+        return category, subcategory
