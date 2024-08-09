@@ -26,7 +26,7 @@ After install requirements, run
  - `just dev`
 
  or, if you want to use docker
- - `just run-docker`
+ - `docker compose up --build -d && docker compose logs app -f`
 
 A container with postgres will be started and the app will run on http://localhost:8000
 
