@@ -29,3 +29,4 @@ class Config(BaseSettings):
         port=5432,
         db_name="postgres",
     )
+    account_service_url: str = "https://jsonplaceholder.typicode.com"

@@ -35,3 +35,4 @@ services:
       DATABASE__HOST: postgres
       DATABASE__PORT: 5432
       DATABASE__DB_NAME: postgres
+      ACCOUNT_SERVICE__URL: https://jsonplaceholder.typicode.com

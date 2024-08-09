@@ -25,6 +25,7 @@ pytest-asyncio = "^0.23.8"
 aiosqlite = "^0.20.0"
 pytest-cov = "^5.0.0"
 greenlet = "^3.0.3"
+pytest-mock = "^3.14.0"
 
 
 [tool.poetry.group.migration.dependencies]

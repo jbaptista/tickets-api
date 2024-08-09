@@ -1,4 +1,5 @@
 from datetime import datetime
+import random
 
 from fastapi import HTTPException
 from loguru import logger
@@ -6,6 +7,7 @@ from loguru import logger
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+from tickets_api.clients.account_client import AccountClient
 from tickets_api.database.repository import SqlAlchemyRepositoryMixin
 from tickets_api.schemas.ticket import Severity, TicketCreate
 from tickets_api.database.models.ticket import Ticket
@@ -13,8 +15,15 @@ from tickets_api.database.models.category import Category
 
 
 class TicketService(SqlAlchemyRepositoryMixin):
-    def __init__(self, db_engine: AsyncEngine):
+    account_client: AccountClient
+
+    def __init__(self, db_engine: AsyncEngine, account_client: AccountClient):
         super().__init__(db_engine)
+        self.account_client = account_client
+
+    async def select_random_attendant(self) -> str:
+        attendant_id = random.randint(1, AccountClient.max_id)
+        return await self.account_client.get_account_name(attendant_id)
 
     async def create_ticket(self, ticket: TicketCreate):
         async with self.session() as session:
@@ -22,7 +31,15 @@ class TicketService(SqlAlchemyRepositoryMixin):
                 session, ticket.category_id, ticket.subcategory_id
             )
 
-            new_ticket = Ticket(**ticket.model_dump())
+            selected_attendant = await self.select_random_attendant()
+            new_ticket = Ticket(
+                title=ticket.title,
+                description=ticket.description,
+                severity=ticket.severity,
+                category_id=ticket.category_id,
+                subcategory_id=ticket.subcategory_id,
+                attendant_name=selected_attendant,
+            )
             session.add(new_ticket)
             await session.commit()
             await session.refresh(new_ticket)
