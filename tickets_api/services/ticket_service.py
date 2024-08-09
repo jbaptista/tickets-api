@@ -25,6 +25,7 @@ class TicketService(SqlAlchemyRepositoryMixin):
             new_ticket = Ticket(**ticket.model_dump())
             session.add(new_ticket)
             await session.commit()
+            await session.refresh(new_ticket)
             if new_ticket.severity == Severity.ISSUE_HIGH:
                 return {
                     "ticket": new_ticket,
