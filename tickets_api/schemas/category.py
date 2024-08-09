@@ -7,3 +7,12 @@ class CategoryCreate(BaseModel):
     description: str
     active: bool
     parent_id: Optional[int] = None
+
+
+class CategoryResponse(BaseModel):
+    id: int
+    name: str
+    description: str
+    active: bool
+    parent_id: Optional[int] = None
+    sub_categories: Optional[list["CategoryResponse"]] = None

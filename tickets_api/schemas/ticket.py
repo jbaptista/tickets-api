@@ -17,3 +17,18 @@ class TicketCreate(BaseModel):
     severity: Severity
     category_id: int
     subcategory_id: int
+
+
+class TicketResponse(BaseModel):
+    id: int
+    title: str
+    description: Optional[str]
+    severity: Severity
+    category_id: int
+    subcategory_id: int
+    attendant_name: str
+
+
+class TicketResponseWithMessage(BaseModel):
+    message: str
+    ticket: TicketResponse
