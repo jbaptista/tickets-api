@@ -16,7 +16,7 @@ router = APIRouter()
 @router.post("", response_model=TicketResponse | TicketResponseWithMessage)
 async def create_ticket(
     ticket: TicketCreate, ticket_service: TicketService = load_state(TicketService)
-) -> TicketResponse | TicketResponseWithMessage:
+):
     result = await ticket_service.create_ticket(ticket)
     logger.info(f"Ticket created: {result}")
     return result
@@ -25,7 +25,7 @@ async def create_ticket(
 @router.get("/{ticket_id}", response_model=TicketResponse)
 async def get_ticket(
     ticket_id: int, ticket_service: TicketService = load_state(TicketService)
-) -> TicketResponse:
+):
     result = await ticket_service.get_ticket(ticket_id)
     logger.info(f"Ticket {ticket_id} found")
     return result
@@ -34,7 +34,7 @@ async def get_ticket(
 @router.get("", response_model=list[TicketResponse])
 async def get_all_tickets(
     ticket_service: TicketService = load_state(TicketService),
-) -> list[TicketResponse]:
+):
     result = await ticket_service.get_all_tickets()
     logger.info("All tickets returned")
     return result
@@ -45,7 +45,7 @@ async def update_ticket(
     ticket_id: int,
     ticket: TicketCreate,
     ticket_service: TicketService = load_state(TicketService),
-) -> TicketResponse:
+):
     result = await ticket_service.update_ticket(ticket_id, ticket)
     logger.info(f"Ticket {ticket_id} updated")
     return result
@@ -54,7 +54,7 @@ async def update_ticket(
 @router.delete("/{ticket_id}", response_model=dict)
 async def delete_ticket(
     ticket_id: int, ticket_service: TicketService = load_state(TicketService)
-) -> dict:
+):
     await ticket_service.delete_ticket(ticket_id)
     logger.info(f"Ticket {ticket_id} deleted")
     return {"message": "Ticket deleted"}
