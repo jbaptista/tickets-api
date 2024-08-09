@@ -6,7 +6,7 @@ from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from tickets_api.database.repository import SqlAlchemyRepositoryMixin
-from tickets_api.schemas.ticket import TicketCreate
+from tickets_api.schemas.ticket import Severity, TicketCreate
 from tickets_api.database.models.ticket import Ticket
 from tickets_api.database.models.category import Category
 
@@ -15,7 +15,7 @@ class TicketService(SqlAlchemyRepositoryMixin):
     def __init__(self, db_engine: AsyncEngine):
         super().__init__(db_engine)
 
-    async def create_ticket(self, ticket: TicketCreate) -> Ticket:
+    async def create_ticket(self, ticket: TicketCreate):
         async with self.session() as session:
             await self.validate_category_and_subcategory(
                 session, ticket.category_id, ticket.subcategory_id
@@ -24,6 +24,11 @@ class TicketService(SqlAlchemyRepositoryMixin):
             new_ticket = Ticket(**ticket.model_dump())
             session.add(new_ticket)
             await session.commit()
+            if new_ticket.severity == Severity.ISSUE_HIGH:
+                return {
+                    "ticket": new_ticket,
+                    "message": "Por favor, crie um ticket no link: http://example/fast, a equipe de guardian buscará resolver a sua issue.",
+                }
             return new_ticket
 
     async def get_ticket(self, ticket_id: int) -> Ticket:
