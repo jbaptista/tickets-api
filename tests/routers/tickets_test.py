@@ -227,3 +227,33 @@ async def test_create_ticket_with_inconsistent_categories(app_client):
     assert response.status_code == 400
     data = response.json()
     assert data["detail"] == "The subcategory is not a child of the category"
+
+
+@pytest.mark.asyncio
+async def test_create_ticket_issue_high(app_client):
+    app_client_instance = await app_client
+    ticket_service: TicketService = app_client_instance.app.state.class_registry[
+        TicketService
+    ]
+    async with ticket_service.session() as session:
+        category_1, category_2 = await create_categories_in_db(session)
+
+    response = app_client_instance.post(
+        "/tickets",
+        json={
+            "title": "Test Ticket",
+            "description": None,
+            "severity": Severity.ISSUE_HIGH.value,
+            "category_id": category_1.id,
+            "subcategory_id": category_2.id,
+        },
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert (
+        data["message"]
+        == "Por favor, crie um ticket no link: http://example/fast, a equipe de guardian buscará resolver a sua issue."
+    )
+    assert data["ticket"]["title"] == "Test Ticket"
+    assert data["ticket"]["severity"] == Severity.ISSUE_HIGH.value
+    assert data["ticket"]["description"] is None
