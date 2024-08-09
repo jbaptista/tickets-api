@@ -13,6 +13,11 @@ docker-db:
 dev: docker-db migrate
   {{ prun }} uvicorn  {{ module }}.main:app --reload
 
+# Run app in development mode inside docker
+dev-docker:
+  docker-compose up --build -d
+  docker-compose logs -f app
+
 # Format code
 fmt *args:
   {{prun}} ruff format {{ args }} {{ code_folders }}
@@ -37,12 +42,6 @@ check: fmt lint typecheck test
 # build docker image
 build:
   docker build -t {{ module }} .
-
-# run docker container
-run-docker:
-  docker-compose up --build -d
-  docker-compose exec app alembic upgrade head
-  docker-compose logs -f app
 
 # Generates migration script from difference between models and database
 gen-migration:
