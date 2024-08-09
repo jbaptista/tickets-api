@@ -1,0 +1,99 @@
+name: CI/CD
+on:
+  push:
+    branches:
+    - main
+    tags:
+    - '**'
+  pull_request:
+
+env:
+  IMAGE: tickets-api
+  
+jobs:
+  install-deps:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/run_task
+        with:
+          task: install
+
+  unit-tests:
+    needs: ['install-deps']
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/run_task
+        with:
+          task: test
+
+  type-check:
+    needs: ['install-deps']
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/run_task
+        with:
+          task: typecheck
+
+  format-check:
+    needs: ['install-deps']
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/run_task
+        with:
+          task: fmt-ci
+
+  lint:
+    needs: ['install-deps']
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/run_task
+        with:
+          task: lint
+  
+  set-env:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set env
+        id: set-env
+        run: |-
+          export MY_TAG=${GITHUB_REF#refs/*/};
+          if [[ $GITHUB_REF == refs/heads* ]] || [[ $GITHUB_REF == refs/pull* ]]; then export MY_TAG=${GITHUB_SHA:0:8}; fi;
+          echo "tag=${MY_TAG}" >> $GITHUB_OUTPUT  
+    outputs:
+      tag: ${{ steps.set-env.outputs.tag }}
+  build-n-push-docker-img:
+    if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags') }}
+    runs-on: ubuntu-latest
+    needs:
+      - install-deps
+      - unit-tests
+      - lint
+      - format-check
+      - type-check
+      - set-env
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build --pull --build-arg "VERSION=${{ needs.set-env.outputs.tag }}" -t ${{env.IMAGE}}:${{ needs.set-env.outputs.tag }} .
+      - run: echo Pushing image ${{env.IMAGE}}:${{ needs.set-env.outputs.tag }} ....
+  deploy-staging:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    needs:
+      - build-n-push-docker-img
+      - set-env
+    steps:
+      - run: echo Fake deploying image ${{env.IMAGE}}:${{ needs.set-env.outputs.tag }} on STAGING environment ....
+  deploy-prod:
+    if: ${{ startsWith(github.ref, 'refs/tags') }}
+    runs-on: ubuntu-latest
+    needs:
+      - build-n-push-docker-img
+      - set-env
+    steps:
+      - run: echo Fake deploying image ${{env.IMAGE}}:${{ needs.set-env.outputs.tag }} on PRODUCTION environment ....
+      
