@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from loguru import logger
 from fastapi.responses import JSONResponse
+from tickets_api.clients.account_client import AccountClient
 from tickets_api.services.category_service import CategoryService
 
 from .config import Config
@@ -18,7 +19,8 @@ def create_app(config: Config) -> FastAPI:
 
     db_engine = make_db_engine(config.database.url)
 
-    ticket_service = TicketService(db_engine)
+    account_client = AccountClient(config.account_service_url)
+    ticket_service = TicketService(db_engine, account_client)
     register_state(app, ticket_service)
     category_service = CategoryService(db_engine)
     register_state(app, category_service)

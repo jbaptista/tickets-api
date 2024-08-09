@@ -11,5 +11,6 @@ class Ticket(Base):
     title: Mapped[str] = mapped_column()
     description: Mapped[str] = mapped_column(nullable=True)
     severity: Mapped[Severity] = mapped_column()
+    attendant_name: Mapped[str] = mapped_column()
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
     subcategory_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
