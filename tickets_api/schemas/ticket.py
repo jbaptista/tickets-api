@@ -15,3 +15,5 @@ class TicketCreate(BaseModel):
     title: str
     description: Optional[str]
     severity: Severity
+    category_id: int
+    subcategory_id: int
