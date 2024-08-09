@@ -38,7 +38,7 @@ async def test_get_category(app_client):
     data = response.json()
     assert data["name"] == "Test Category"
     assert data["description"] == "Test Description"
-    assert data["active"] == True
+    assert data["active"] is True
 
 
 @pytest.mark.asyncio
@@ -59,7 +59,7 @@ async def test_get_all_categories(app_client):
     assert len(data) == 1
     assert data[0]["name"] == "Test Category"
     assert data[0]["description"] == "Test Description"
-    assert data[0]["active"] == True
+    assert data[0]["active"] is True
 
 
 @pytest.mark.asyncio
@@ -88,7 +88,7 @@ async def test_update_category(app_client):
     data = response.json()
     assert data["name"] == "Updated Test Category"
     assert data["description"] == "Updated Test Description"
-    assert data["active"] == False
+    assert data["active"] is False
 
 
 @pytest.mark.asyncio
@@ -137,7 +137,7 @@ async def test_create_subcategory(app_client):
     data = response.json()
     assert data["name"] == "Test Subcategory"
     assert data["description"] == "Test Subcategory Description"
-    assert data["active"] == True
+    assert data["active"] is True
     assert data["parent_id"] == category_id
 
 
@@ -173,12 +173,12 @@ async def test_append_subcategory(app_client):
     data = response.json()
     assert data["name"] == "Test Category"
     assert data["description"] == "Test Description"
-    assert data["active"] == True
-    assert data["parent_id"] == None
+    assert data["active"] is True
+    assert data["parent_id"] is None
     assert len(data["sub_categories"]) == 1
     assert data["sub_categories"][0]["name"] == "Test Subcategory"
     assert data["sub_categories"][0]["description"] == "Test Subcategory Description"
-    assert data["sub_categories"][0]["active"] == True
+    assert data["sub_categories"][0]["active"] is True
     assert data["sub_categories"][0]["parent_id"] == category_id
 
 
@@ -218,8 +218,8 @@ async def test_get_category_with_subcategories(app_client):
     data = response.json()
     assert data["name"] == "Test Category"
     assert data["description"] == "Test Description"
-    assert data["active"] == True
+    assert data["active"] is True
     assert data["sub_categories"][0]["name"] == "Test Subcategory"
     assert data["sub_categories"][0]["description"] == "Test Subcategory Description"
-    assert data["sub_categories"][0]["active"] == True
+    assert data["sub_categories"][0]["active"] is True
     assert data["sub_categories"][0]["parent_id"] == category_id

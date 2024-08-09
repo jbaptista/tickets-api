@@ -62,7 +62,7 @@ class CategoryService(SqlAlchemyRepositoryMixin):
 
     async def get_all_categories(self):
         async with self.session() as session:
-            stmt = select(Category).where(Category.parent_id == None)
+            stmt = select(Category).where(Category.parent_id.is_(None))
             result = await session.execute(stmt)
             return list(result.scalars().unique().all())
 
