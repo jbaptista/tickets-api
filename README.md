@@ -26,12 +26,14 @@ After install requirements, run
  - `just dev`
 
  or, if you want to use docker
- - `just run-docker`
+ - `docker compose up --build -d && docker compose logs app -f`
 
 A container with postgres will be started and the app will run on http://localhost:8000
 
- ## Docs
- The OpenAPI Docs (Swagger) are in localhost:8000/docs
+ ## Docs and Examples
+ The OpenAPI Docs (Swagger) are in http://localhost:8000/docs
+
+ [This postman collection](https://www.postman.com/navigation-geologist-23746087/workspace/tickets-api/request/15351339-7dbfca81-184a-4a12-bda0-b2ccb07159a9?action=share&creator=15351339&ctx=documentation) contains examples of this api calls
 
  ## Tests and Quality Checkers
  - `just test` Run unit tests with pytest

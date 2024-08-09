@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
@@ -9,7 +10,8 @@ class Ticket(Base):
     __tablename__ = "tickets"
 
     title: Mapped[str] = mapped_column()
-    description: Mapped[str] = mapped_column(nullable=True)
+    description: Mapped[Optional[str]] = mapped_column(nullable=True)
     severity: Mapped[Severity] = mapped_column()
+    attendant_name: Mapped[str] = mapped_column()
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
     subcategory_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))

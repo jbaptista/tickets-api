@@ -4,13 +4,14 @@ from tickets_api.database.models import Ticket
 from tickets_api.database.models.ticket import Severity
 
 
-def test_create_ticket(sync_session):
+def test_create_ticket(sync_session, mocked_attendant):
     ticket = Ticket(
         title="Test Ticket",
         description=None,
         severity=Severity.HIGH,
         category_id=1,
         subcategory_id=2,
+        attendant_name=mocked_attendant,
     )
     sync_session.add(ticket)
     sync_session.commit()
@@ -23,13 +24,14 @@ def test_create_ticket(sync_session):
     assert result.description is None
 
 
-def test_update_ticket(sync_session):
+def test_update_ticket(sync_session, mocked_attendant):
     ticket = Ticket(
         title="Test Ticket",
         description=None,
         severity=Severity.HIGH,
         category_id=1,
         subcategory_id=2,
+        attendant_name=mocked_attendant,
     )
     sync_session.add(ticket)
     sync_session.commit()
@@ -43,13 +45,14 @@ def test_update_ticket(sync_session):
     assert result.title == "Updated Test Ticket"
 
 
-def test_get_ticket(sync_session):
+def test_get_ticket(sync_session, mocked_attendant):
     ticket = Ticket(
         title="Test Ticket",
         description=None,
         severity=Severity.HIGH,
         category_id=1,
         subcategory_id=2,
+        attendant_name=mocked_attendant,
     )
     sync_session.add(ticket)
     sync_session.commit()
@@ -62,13 +65,14 @@ def test_get_ticket(sync_session):
     assert result.description is None
 
 
-def test_delete_ticket(sync_session):
+def test_delete_ticket(sync_session, mocked_attendant):
     ticket = Ticket(
         title="Test Ticket",
         description=None,
         severity=Severity.HIGH,
         category_id=1,
         subcategory_id=2,
+        attendant_name=mocked_attendant,
     )
     sync_session.add(ticket)
     sync_session.commit()
@@ -89,13 +93,14 @@ def test_delete_ticket(sync_session):
     assert result is None
 
 
-def test_get_all_tickets(sync_session):
+def test_get_all_tickets(sync_session, mocked_attendant):
     ticket1 = Ticket(
         title="Test Ticket 1",
         description=None,
         severity=Severity.HIGH,
         category_id=1,
         subcategory_id=2,
+        attendant_name=mocked_attendant,
     )
     ticket2 = Ticket(
         title="Test Ticket 2",
@@ -103,6 +108,7 @@ def test_get_all_tickets(sync_session):
         severity=Severity.MEDIUM,
         category_id=1,
         subcategory_id=2,
+        attendant_name=mocked_attendant,
     )
     sync_session.add_all([ticket1, ticket2])
     sync_session.commit()
