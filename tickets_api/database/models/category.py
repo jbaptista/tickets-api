@@ -14,5 +14,5 @@ class Category(Base):
     )
 
     sub_categories: Mapped[list["Category"]] = relationship(
-        "Category", lazy="joined", join_depth=2, init=False
+        "Category", lazy="selectin", init=False
     )

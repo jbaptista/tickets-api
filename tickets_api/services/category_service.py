@@ -3,7 +3,7 @@ from loguru import logger
 
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncEngine
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import selectinload
 
 from tickets_api.database.repository import SqlAlchemyRepositoryMixin
 from tickets_api.schemas.category import CategoryCreate
@@ -31,7 +31,7 @@ class CategoryService(SqlAlchemyRepositoryMixin):
         async with self.session() as session:
             stmt = (
                 select(Category)
-                .options(joinedload(Category.sub_categories))
+                .options(selectinload(Category.sub_categories, recursion_depth=-1))
                 .filter_by(id=category_id)
             )
             result = await session.execute(stmt)
@@ -66,7 +66,11 @@ class CategoryService(SqlAlchemyRepositoryMixin):
 
     async def get_all_categories(self):
         async with self.session() as session:
-            stmt = select(Category).where(Category.parent_id.is_(None))
+            stmt = (
+                select(Category)
+                .where(Category.parent_id.is_(None))
+                .options(selectinload(Category.sub_categories, recursion_depth=-1))
+            )
             result = await session.execute(stmt)
             return list(result.scalars().unique().all())
 
@@ -83,20 +87,48 @@ class CategoryService(SqlAlchemyRepositoryMixin):
             await session.refresh(new_category)
             return new_category
 
+    def get_all_subcategory_ids(self, category):
+        sub_categories = category.sub_categories
+        subcategory_ids = []
+        for subcategory in sub_categories:
+            subcategory_ids.append(subcategory.id)
+            subcategory_ids.extend(self.get_all_subcategory_ids(subcategory))
+        return subcategory_ids
+
     async def append_subcategory(self, category_id, subcategory_id):
         async with self.session() as session:
-            category = await session.get(Category, category_id)
+            result = await session.execute(
+                select(Category)
+                .where(Category.id == category_id)
+                .options(selectinload(Category.sub_categories, recursion_depth=-1))
+            )
+            category = result.scalars().first()
             if not category:
                 logger.error(
                     f"Error appending subcategory. Category {category_id} not found"
                 )
                 raise HTTPException(status_code=404, detail="Category not found")
-            subcategory = await session.get(Category, subcategory_id)
+            result = await session.execute(
+                select(Category)
+                .where(Category.id == subcategory_id)
+                .options(selectinload(Category.sub_categories, recursion_depth=-1))
+            )
+            subcategory = result.scalars().first()
             if not subcategory:
                 logger.error(
                     f"Error appending subcategory. Subcategory {subcategory_id} not found"
                 )
                 raise HTTPException(status_code=404, detail="Subcategory not found")
+
+            subcategory_ids = self.get_all_subcategory_ids(subcategory)
+            if category_id in subcategory_ids:
+                logger.error(
+                    f"Error appending subcategory. Subcategory {subcategory_id} is a parent of category {category_id}"
+                )
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Forbidden operation. Subcategory {subcategory_id} is a parent of category {category_id}",
+                )
             category.sub_categories.append(subcategory)
             await session.commit()
             await session.refresh(category)
