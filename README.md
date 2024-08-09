@@ -1,6 +1,14 @@
 # Tickets API
 
-API responsible for managing support tickets
+API responsible for management of support tickets. 
+
+## Funcionalities
+ - CRUD of Tickets
+ - CRUD of Categories
+ - Categories can have nested subcategories
+ - Tickets are associated a category and a subcategory
+ - Tickets have a severity (1 = ISSUE HIGH, 2 = HIGH, 3 = MEDIUM, 4 = LOW)
+ - When a ticket is created, a attendant is randomly selected from a external service
 
 ## Requirements
 
@@ -26,7 +34,7 @@ After install requirements, run
  - `just dev`
 
  or, if you want to use docker
- - `docker compose up --build -d && docker compose logs app -f`
+ - `docker compose up --build -d && docker compose logs app -f` or `just dev-docker`
 
 A container with postgres will be started and the app will run on http://localhost:8000
 
@@ -41,3 +49,41 @@ A container with postgres will be started and the app will run on http://localho
  - `just fmt` Format code with Ruff
  - `just typecheck` Check static types with mypy
  - `just check` Run all quality checkers above
+
+## Folder Structure
+
+|
++-- migrations - used by alembic to manage migrations
++-- tests - test files
++-- tickets_api - main project codebase
+|   +-- clients - external services clients
+|   +-- database - database models
+|   +-- routers - API routers
+|   +-- schemas - data schemas models to data transfer between layers
+|   +-- service - services by context with business logic
+|   +-- utils - utility tools
+|   app_factory.py - build app and dependencies
+|   config.py - manage configuration from env variables
+|   main.py - entrypoint
+
+## Environment variables
+Project is configured by environment vars. Default values was setted to facilitate development, but if a .env is present, will be loaded.
+
+.env example:
+```
+IS_LOCAL=
+LOG_LEVEL=
+VERSION=
+DATABASE__USER=
+DATABASE__PASSWORD=
+DATABASE__HOST=
+DATABASE__PORT=
+DATABASE__DB_NAME=
+ACCOUNT_SERVICE_URL=
+```
+
+## Migrations
+Migrations are managed by alembic. With correct database variables, the following commands can be used:
+
+ - `just gen-migration`: Generate a new migration based on changes on the database model
+ - `just migrate`: apply all pending migrations
