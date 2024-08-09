@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from fastapi import HTTPException
+from loguru import logger
 
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncEngine
@@ -35,6 +36,7 @@ class TicketService(SqlAlchemyRepositoryMixin):
         async with self.session() as session:
             ticket = await session.get(Ticket, ticket_id)
             if not ticket:
+                logger.error(f"Ticket {ticket_id} not found for retrieval")
                 raise HTTPException(status_code=404, detail="Ticket not found")
             return ticket
 
@@ -48,6 +50,7 @@ class TicketService(SqlAlchemyRepositoryMixin):
         async with self.session() as session:
             ticket = await session.get(Ticket, ticket_id)
             if not ticket:
+                logger.error(f"Ticket {ticket_id} not found for deletion")
                 raise HTTPException(status_code=404, detail="Ticket not found")
             await session.delete(ticket)
             await session.commit()
@@ -56,6 +59,7 @@ class TicketService(SqlAlchemyRepositoryMixin):
         async with self.session() as session:
             ticket_db: Ticket | None = await session.get(Ticket, ticket_id)
             if not ticket_db:
+                logger.error(f"Ticket {ticket_id} not found for update")
                 raise HTTPException(status_code=404, detail="Ticket not found")
             ticket_db.title = ticket.title
             if ticket.description:
@@ -70,12 +74,22 @@ class TicketService(SqlAlchemyRepositoryMixin):
     ):
         category = await session.get(Category, category_id)
         if not category:
+            logger.error(f"Error binding category {category_id}. Category not found")
             raise HTTPException(status_code=400, detail="Non-existent category")
         subcategory = await session.get(Category, subcategory_id)
         if not subcategory:
+            logger.error(
+                f"Error binding subcategory {subcategory_id}. Subcategory not found"
+            )
             raise HTTPException(status_code=400, detail="Non-existent subcategory")
         if subcategory.parent_id != category_id:
+            (
+                logger.error(
+                    f"Error binding subcategory {subcategory_id} and category {category_id}. The subcategory is not a child of the category"
+                ),
+            )
             raise HTTPException(
-                status_code=400, detail="The subcategory is not a child of the category"
+                status_code=400,
+                detail="The subcategory is not a child of the category",
             )
         return category, subcategory

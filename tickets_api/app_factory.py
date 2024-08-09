@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-
+from loguru import logger
+from fastapi.responses import JSONResponse
 from tickets_api.services.category_service import CategoryService
 
 from .config import Config
@@ -25,5 +26,13 @@ def create_app(config: Config) -> FastAPI:
     app.include_router(healthcheck_router, prefix="/healthcheck")
     app.include_router(tickets_router, prefix="/tickets")
     app.include_router(category_router, prefix="/categories")
+
+    @app.exception_handler(Exception)
+    async def handle_exception(request, exc):
+        logger.exception(exc)
+        return JSONResponse(
+            status_code=500,
+            content={"message": "Internal server error"},
+        )
 
     return app

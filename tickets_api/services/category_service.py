@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from loguru import logger
 
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncEngine
@@ -36,6 +37,7 @@ class CategoryService(SqlAlchemyRepositoryMixin):
             result = await session.execute(stmt)
             category = result.scalars().first()
             if not category:
+                logger.error(f"Category {category_id} not found for retrieval")
                 raise HTTPException(status_code=404, detail="Category not found")
             category.sub_categories
             return category
@@ -44,6 +46,7 @@ class CategoryService(SqlAlchemyRepositoryMixin):
         async with self.session() as session:
             category = await session.get(Category, category_id)
             if not category:
+                logger.error(f"Category {category_id} not found for update")
                 raise HTTPException(status_code=404, detail="Category not found")
             category.name = category_data.name
             category.description = category_data.description
@@ -56,6 +59,7 @@ class CategoryService(SqlAlchemyRepositoryMixin):
         async with self.session() as session:
             category = await session.get(Category, category_id)
             if not category:
+                logger.error(f"Category {category_id} not found for deletion")
                 raise HTTPException(status_code=404, detail="Category not found")
             await session.delete(category)
             await session.commit()
@@ -83,9 +87,15 @@ class CategoryService(SqlAlchemyRepositoryMixin):
         async with self.session() as session:
             category = await session.get(Category, category_id)
             if not category:
+                logger.error(
+                    f"Error appending subcategory. Category {category_id} not found"
+                )
                 raise HTTPException(status_code=404, detail="Category not found")
             subcategory = await session.get(Category, subcategory_id)
             if not subcategory:
+                logger.error(
+                    f"Error appending subcategory. Subcategory {subcategory_id} not found"
+                )
                 raise HTTPException(status_code=404, detail="Subcategory not found")
             category.sub_categories.append(subcategory)
             await session.commit()
