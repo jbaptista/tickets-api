@@ -19,7 +19,7 @@ class CategoryService(SqlAlchemyRepositoryMixin):
             name=category_data.name,
             description=category_data.description,
             active=category_data.active,
-            parent_id=None,
+            parent_id=category_data.parent_id,
         )
         async with self.session() as session:
             session.add(new_category)
