@@ -52,19 +52,18 @@ A container with postgres will be started and the app will run on http://localho
 
 ## Folder Structure
 
-|
-+-- migrations - used by alembic to manage migrations
-+-- tests - test files
-+-- tickets_api - main project codebase
-|   +-- clients - external services clients
-|   +-- database - database models
-|   +-- routers - API routers
-|   +-- schemas - data schemas models to data transfer between layers
-|   +-- service - services by context with business logic
-|   +-- utils - utility tools
-|   app_factory.py - build app and dependencies
-|   config.py - manage configuration from env variables
-|   main.py - entrypoint
+* migrations - used by alembic to manage migrations
+* tests - test files
+* tickets_api - main project codebase
+  * clients - external services clients
+  * database - database models
+  * routers - API routers
+  * schemas - data schemas models to data transfer between layers
+  * service - services by context with business logic
+  * utils - utility tools
+  * app_factory.py - build app and dependencies
+  * config.py - manage configuration from env variables
+  * main.py - entrypoint
 
 ## Environment variables
 Project is configured by environment vars. Default values was setted to facilitate development, but if a .env is present, will be loaded.
